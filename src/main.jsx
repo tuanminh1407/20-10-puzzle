@@ -1,111 +1,39 @@
-import React, { useEffect, useState } from "react";
-import { createRoot } from "react-dom/client";
-import { Heart, Flower2, Sparkles, LockKeyhole, Gift, ArrowRight, RotateCcw, Stars } from "lucide-react";
-import "./style.css";
-
-const journeys = {
-  mom: {
-    label: "Dành tặng mẹ", name: "Mẹ yêu", emoji: "🌷", theme: "mom",
-    intro: "Một món quà nhỏ, gửi đến người luôn dành cho gia đình những điều lớn lao nhất.",
-    questions: [
-      { q: "Nếu được chọn một ngày nghỉ thật trọn vẹn, mẹ sẽ thích điều gì nhất?", opts: ["Được cả nhà quây quần bên nhau", "Đi chơi và khám phá nơi mới", "Ở nhà nghỉ ngơi, làm điều mình thích"], answer: 0, note: "Điều quý giá nhất đôi khi chỉ là được ở cạnh nhau. 💗" },
-      { q: "Đâu là món quà mà mẹ xứng đáng nhận được mỗi ngày?", opts: ["Một bó hoa thật to", "Sự quan tâm và những lời yêu thương", "Một chiếc bánh thật ngon"], answer: 1, note: "Mẹ xứng đáng được yêu thương không chỉ riêng ngày hôm nay." },
-      { q: "Hôm nay, con muốn nói với mẹ điều gì nhất?", opts: ["Con cảm ơn mẹ vì tất cả", "Mẹ nhớ nghỉ ngơi nhiều hơn nhé", "Con thương mẹ rất nhiều"], answer: null, note: "Dù con chọn cách nào, mong mẹ luôn cảm nhận được tình yêu của con." },
-      { q: "Nếu gửi mẹ một điều ước, con sẽ chọn điều gì?", opts: ["Mẹ luôn khỏe mạnh và vui vẻ", "Cả nhà có thật nhiều chuyến đi", "Mỗi ngày đều có chuyện vui"], answer: null, note: "Mong những ngày của mẹ luôn có thật nhiều niềm vui." },
-      { q: "Mẹ đoán xem, món quà cuối cùng là gì nào?", opts: ["Một điều bất ngờ nho nhỏ", "Một tấm thiệp đặc biệt", "Tất cả tình yêu của con"], answer: null, note: "Mẹ đã mở khóa mảnh ghép cuối cùng rồi! 🌸" }
-    ],
-    title: "Gửi mẹ yêu thương",
-    message: "Nhân ngày Phụ nữ Việt Nam 20/10, con chúc mẹ luôn mạnh khỏe, bình an và thật nhiều niềm vui. Cảm ơn mẹ vì những yêu thương, hy sinh và chăm sóc dành cho gia đình. Mong mẹ luôn nhớ rằng mẹ cũng xứng đáng được nâng niu, nghỉ ngơi và hạnh phúc. Con yêu mẹ thật nhiều! 💗"
-  },
-  sister: {
-    label: "Dành tặng em gái", name: "Em gái", emoji: "🌼", theme: "sister",
-    intro: "Một nhiệm vụ bí mật dành cho cô em gái đáng yêu (và đôi khi hơi đáng ghét) nhất nhà.",
-    questions: [
-      { q: "Một ngày hoàn hảo của em sẽ có gì?", opts: ["Đồ ăn ngon và được ngủ nướng", "Đi chơi cùng hội bạn", "Có quà bất ngờ"], answer: null, note: "Nghe cái nào cũng hợp lý hết á! 😆" },
-      { q: "Nếu được nhận một siêu năng lực, em chọn gì?", opts: ["Đọc suy nghĩ người khác", "Dịch chuyển tức thời", "Ăn bao nhiêu cũng không tăng cân"], answer: null, note: "Lựa chọn này cần được nghiên cứu khoa học nghiêm túc. 😂" },
-      { q: "Ai là người thỉnh thoảng trêu em nhưng vẫn thương em?", opts: ["Anh/chị của em chứ ai", "Hàng xóm", "Một người bí ẩn"], answer: 0, note: "Chính xác! Trêu là phụ, thương em là chính. 💗" },
-      { q: "Ngày 20/10 này, em muốn nhận điều gì?", opts: ["Một lời chúc thật dễ thương", "Một món quà xịn xò", "Cả hai thì càng tốt"], answer: null, note: "Biết ngay mà, ai lại từ chối quà chứ! 🎁" },
-      { q: "Câu hỏi cuối: em có biết mình rất đáng yêu không?", opts: ["Biết chứ, khỏi nói", "Cũng hơi hơi", "Cho em thêm một món quà rồi em trả lời"], answer: null, note: "Câu trả lời nào cũng được duyệt nhé! 🌼" }
-    ],
-    title: "Gửi cô em gái",
-    message: "Chúc em gái có một ngày 20/10 thật vui vẻ, luôn tự tin, xinh xắn theo cách riêng và làm được những điều mình yêu thích. Mong em gặp nhiều người tốt, có thật nhiều trải nghiệm đáng nhớ và dù lớn đến đâu cũng luôn giữ được sự hồn nhiên của mình. P/S: Anh/chị có thể trêu em hơi nhiều, nhưng vẫn luôn đứng về phía em đó nha! 💖"
-  }
-};
-
-function App() {
-  const [screen, setScreen] = useState("home");
-  const [person, setPerson] = useState("mom");
-  const [step, setStep] = useState(0);
-  const [unlocked, setUnlocked] = useState([]);
-  const [choice, setChoice] = useState(null);
-  const [showHint, setShowHint] = useState(false);
-  const [completed, setCompleted] = useState({ mom: false, sister: false });
-  const data = journeys[person];
-  const question = data.questions[step];
-
-  useEffect(() => {
-    document.title = screen === "card" ? `${data.title} 💗` : "Món quà nhỏ ngày 20/10 💗";
-  }, [screen, data.title]);
-
-  function startJourney(key) {
-    setPerson(key); setStep(0); setUnlocked([]); setChoice(null); setShowHint(false); setScreen("quiz");
-  }
-  function submitAnswer() {
-    if (choice === null) return;
-    if (question.answer !== null && choice !== question.answer) {
-      setShowHint(true); return;
-    }
-    setUnlocked(prev => prev.includes(step) ? prev : [...prev, step]);
-    setShowHint(false);
-    setScreen("piece");
-  }
-  function nextQuestion() {
-    if (step + 1 >= data.questions.length) {
-      setCompleted(prev => ({ ...prev, [person]: true }));
-      setScreen("card");
-    } else {
-      setStep(step + 1); setChoice(null); setShowHint(false); setScreen("quiz");
-    }
-  }
-  function goHome() { setScreen("home"); }
-  const progress = unlocked.length / data.questions.length * 100;
-
-  return <main className={`app ${data.theme}`}>
-    <div className="ambient ambient-one"></div><div className="ambient ambient-two"></div>
-    <header className="topbar"><div className="brand"><span className="brand-icon"><Flower2 size={19}/></span> little love studio</div><span className="date-pill">20 · 10 · 2026</span></header>
-
-    {screen === "home" && <section className="hero page">
-      <div className="eyebrow"><Sparkles size={15}/> MỘT MÓN QUÀ NHỎ, MỘT TÌNH YÊU TO</div>
-      <div className="hero-art" aria-hidden="true"><span className="spark s1">✦</span><span className="spark s2">✧</span><span className="flower flower-a">🌸</span><span className="flower flower-b">🌷</span><span className="flower flower-c">🌼</span><div className="envelope"><Heart size={38} fill="currentColor"/><span>for you</span></div></div>
-      <h1>Một chút yêu thương<br/><em>gửi người đặc biệt.</em></h1>
-      <p className="hero-copy">Có hai món quà nhỏ đang chờ được khám phá. Trả lời vài câu hỏi, mở khóa những mảnh ghép và tìm tấm thiệp bí mật nhé!</p>
-      <div className="recipient-grid">
-        <button className="recipient-card mom-card" onClick={() => startJourney("mom")}><span className="recipient-emoji">🌷</span><span className="recipient-label">Món quà số 01</span><strong>Dành tặng mẹ</strong><span className="card-desc">Một chút biết ơn, thật nhiều yêu thương.</span><span className="card-action">Bắt đầu khám phá <ArrowRight size={16}/></span></button>
-        <button className="recipient-card sister-card" onClick={() => startJourney("sister")}><span className="recipient-emoji">🌼</span><span className="recipient-label">Món quà số 02</span><strong>Dành tặng em gái</strong><span className="card-desc">Nhiệm vụ bí mật cho cô em đáng yêu.</span><span className="card-action">Bắt đầu khám phá <ArrowRight size={16}/></span></button>
-      </div>
-      <div className="tiny-note"><Heart size={13} fill="currentColor"/> Làm bằng tất cả sự yêu thương, dành riêng cho gia đình mình.</div>
-    </section>}
-
-    {screen === "quiz" && <section className="game-layout page">
-      <button className="back-link" onClick={goHome}>← Về trang đầu</button>
-      <div className="game-heading"><div className="eyebrow"><Sparkles size={14}/> MÓN QUÀ CỦA {data.name.toUpperCase()}</div><h1>Mở khóa mảnh ghép <em>#{step + 1}</em></h1><p>{data.intro}</p></div>
-      <div className="progress-row"><span>TIẾN ĐỘ KHÁM PHÁ</span><strong>{unlocked.length}/{data.questions.length} mảnh</strong></div><div className="progress-track"><div style={{width:`${progress}%`}}/></div>
-      <div className="game-columns">
-        <div className="question-card"><div className="question-count">CÂU HỎI {String(step+1).padStart(2,"0")} <span>·</span> {data.questions.length}</div><h2>{question.q}</h2><div className="options">{question.opts.map((opt,i)=><button key={opt} className={`option ${choice===i?"selected":""}`} onClick={()=>{setChoice(i);setShowHint(false)}}><span className="option-letter">{String.fromCharCode(65+i)}</span><span>{opt}</span><span className="option-check">{choice===i?"✓":"+"}</span></button>)}</div>
-          {showHint && <p className="hint">Chưa phải lựa chọn đó, thử lại nhé! 💗</p>}
-          <button className="primary-btn full" disabled={choice===null} onClick={submitAnswer}>Mở mảnh ghép <Heart size={16} fill="currentColor"/></button>
-          <p className="gentle-note">Đây không phải bài kiểm tra đâu — cứ chọn điều bạn nghĩ nhé.</p>
-        </div>
-        <div className="puzzle-card"><div className="puzzle-title"><span>HỘP MẢNH GHÉP</span><span>{unlocked.length} / {data.questions.length}</span></div><div className="mini-puzzle">{data.questions.map((q,i)=><div key={i} className={`mini-piece ${unlocked.includes(i)?"is-open":""}`}>{unlocked.includes(i)?<span>{["🌷","💗","🌼","✨","💌"][i%5]}</span>:<LockKeyhole size={19}/>}</div>)}</div><p>{unlocked.length===0?"Mỗi câu trả lời sẽ hé lộ một phần món quà.":`Bạn đã tìm được ${unlocked.length} mảnh yêu thương.`}</p><div className="puzzle-flower">🌸</div></div>
-      </div>
-    </section>}
-
-    {screen === "piece" && <section className="reveal page"><div className="eyebrow"><Sparkles size={15}/> MỘT MẢNH YÊU THƯƠNG ĐÃ ĐƯỢC MỞ</div><div className="reveal-icon">{["🌷","💗","🌼","✨","💌"][step%5]}</div><h1>Ting ting! <em>Mở khóa thành công!</em></h1><p className="reveal-note">{question.note}</p><div className="reveal-progress">{unlocked.length} / {data.questions.length} mảnh ghép đã tìm thấy</div><div className="progress-track"><div style={{width:`${progress}%`}}/></div><div className="mini-puzzle reveal-puzzle">{data.questions.map((q,i)=><div key={i} className={`mini-piece ${unlocked.includes(i)?"is-open":""}`}>{unlocked.includes(i)?<span>{["🌷","💗","🌼","✨","💌"][i%5]}</span>:<LockKeyhole size={19}/>}</div>)}</div><button className="primary-btn" onClick={nextQuestion}>{step+1===data.questions.length?"Xem tấm thiệp của mình":"Tiếp tục khám phá"} <ArrowRight size={17}/></button><button className="text-btn" onClick={goHome}>Để sau khám phá tiếp</button></section>}
-
-    {screen === "card" && <section className="final page"><div className="eyebrow"><Stars size={15}/> BẠN ĐÃ MỞ KHÓA TẤT CẢ MẢNH GHÉP</div><div className="final-art"><div className="final-flower f1">🌷</div><div className="final-flower f2">🌸</div><div className="final-flower f3">🌼</div><div className="final-heart"><Heart size={35} fill="currentColor"/></div><span className="final-ribbon">20 · 10</span></div><div className="card-paper"><div className="paper-top">✦ MỘT TẤM THIỆP DÀNH RIÊNG ✦</div><h1>{data.title},<br/><em>chúc mừng 20/10!</em></h1><p>{data.message}</p><div className="paper-sign">Thương thật nhiều, <span>♡</span><br/><strong>Gia đình mình</strong></div><div className="paper-flower">❀</div></div><p className="final-caption">Món quà nhỏ đã hoàn thành. Mong hôm nay và những ngày sau nữa đều có thật nhiều yêu thương. 💗</p><div className="final-actions"><button className="primary-btn" onClick={goHome}>Về trang đầu <Heart size={16} fill="currentColor"/></button><button className="secondary-btn" onClick={()=>startJourney(person)}><RotateCcw size={16}/> Chơi lại hành trình này</button></div>{completed.mom&&completed.sister&&<p className="both-done">🎉 Cả hai món quà đều đã được mở khóa!</p>}</section>}
-
-    <footer className="footer"><span>made with ♡ for 20/10</span><span>một chút dịu dàng cho những người mình thương</span></footer>
-  </main>
-}
-
-createRoot(document.getElementById("root")).render(<App />);
+import React,{useState} from "react";
+import{createRoot}from"react-dom/client";
+import{Heart,Flower2,Sparkles,ArrowRight,ArrowLeft,LockKeyhole,RotateCcw,Gift}from"lucide-react";
+import"./style.css";
+const journeys={
+mom:{label:"Dành tặng mẹ",name:"Mẹ yêu",theme:"mom",intro:"Một vài câu hỏi nhỏ để hiểu mẹ hơn và gửi mẹ một món quà dịu dàng.",questions:[
+["Dạo gần đây, điều gì khiến mẹ vui nhất?",["Được cả nhà quây quần","Có thời gian nghỉ ngơi","Làm điều mình yêu thích","Một điều khác"]],
+["Có điều gì mẹ muốn làm từ lâu nhưng chưa có thời gian thực hiện không?",["Đi du lịch","Học hoặc thử điều mới","Chăm sóc bản thân","Mẹ muốn tự kể"]],
+["Nếu dành trọn một ngày cho riêng mình, mẹ muốn ngày ấy thế nào?",["Thư giãn ở nhà","Ra ngoài đi chơi","Gặp người thân, bạn bè","Theo ý thích của mẹ"]],
+["Có món ăn hay địa điểm nào mẹ muốn cả nhà cùng thử không?",["Một quán ăn mới","Một chuyến đi ngắn","Bữa cơm gia đình tại nhà","Mẹ sẽ chọn sau"]],
+["Có việc gì con có thể làm thường xuyên hơn để mẹ đỡ vất vả?",["Chủ động phụ việc nhà","Dành thời gian trò chuyện","Quan tâm hỏi han nhiều hơn","Điều khác mẹ muốn nhắn"]],
+["Nếu cả nhà có một ngày không bận rộn, mẹ muốn mọi người cùng làm gì?",["Đi chơi cùng nhau","Nấu ăn và ăn cùng nhau","Xem phim, trò chuyện ở nhà","Cùng mẹ lên kế hoạch"]]
+],title:"Gửi mẹ yêu thương",message:"Nhân ngày Phụ nữ Việt Nam 20/10, con chúc mẹ luôn mạnh khỏe, bình an và có thật nhiều niềm vui. Cảm ơn mẹ vì những yêu thương và chăm sóc mẹ dành cho gia đình. Mong mẹ cũng luôn có thời gian cho bản thân, làm những điều mẹ thích và được yêu thương thật nhiều. Con yêu mẹ! 💗"},
+sister:{label:"Dành tặng em gái",name:"Em gái",theme:"sister",intro:"Một nhiệm vụ nhỏ dành cho cô em gái đáng yêu — không có đúng sai, cứ là chính mình nhé!",questions:[
+["Gần đây có chuyện gì khiến em vui nhất?",["Một chuyện ở trường/công việc","Đi chơi với bạn","Một điều nhỏ xíu","Em muốn tự kể"]],
+["Nếu cả nhà cùng chọn hoạt động cuối tuần này, em muốn làm gì?",["Đi ăn món ngon","Đi xem phim","Đi chơi đâu đó","Em có ý tưởng riêng"]],
+["Có món ăn, món đồ hay nơi nào em muốn thử mà chưa có dịp không?",["Một món ăn mới","Một nơi muốn đến","Một món đồ đang thích","Điều khác"]],
+["Dạo này em đang quan tâm hoặc muốn học thêm điều gì?",["Một kỹ năng mới","Sở thích sáng tạo","Thể thao hoặc sức khỏe","Em muốn tự kể"]],
+["Nếu có một ngày hoàn toàn rảnh rỗi, em muốn dành ngày đó thế nào?",["Ngủ và nghỉ ngơi","Đi chơi với bạn","Ở nhà xem phim/chơi game","Làm điều mình thích"]],
+["Có điều gì em muốn anh/chị hiểu hơn về mình không?",["Điều em đang cố gắng","Điều làm em vui/buồn","Cách anh/chị có thể giúp em","Em muốn nói bằng lời riêng"]]
+],title:"Gửi cô em gái",message:"Chúc em có một ngày 20/10 thật vui, luôn tự tin và làm được những điều mình yêu thích. Mong em có nhiều trải nghiệm đẹp, gặp những người tử tế và luôn giữ được sự hồn nhiên của mình. Nếu có lúc thấy khó khăn, nhớ rằng em không cần tự giải quyết mọi thứ một mình nhé. Anh/chị luôn thương em! 💖"}};
+const art="/gift-art.svg";
+function Tile({id}){return <div className="tile" style={{backgroundImage:`url(${art})`,backgroundSize:"300% 200%",backgroundPosition:`${id%3*50}% ${Math.floor(id/3)*100}%`}}/>}
+function App(){
+const [screen,S]=useState("home"),[person,P]=useState("mom"),[step,T]=useState(0),[answers,A]=useState({}),[unlocked,U]=useState([]),[pieces,B]=useState([]),[selected,D]=useState(null),[placed,L]=useState([]);
+const d=journeys[person],q=d.questions[step],key=person+"-"+step,ans=answers[key]||{},progress=unlocked.length/6*100;
+function start(p){P(p);T(0);A({});U([]);B([]);L([]);D(null);S("quiz")}
+function answer(patch){A(old=>({...old,[key]:{...ans,...patch}}))}
+function reveal(){if(!unlocked.includes(step)){U(old=>[...old,step]);B(old=>[...old,step].sort(()=>Math.random()-.5))}S("piece")}
+function next(){if(step<5){T(step+1);S("quiz")}else{B(old=>[...old].sort(()=>Math.random()-.5));L([]);D(null);S("puzzle")}}
+function put(id,target){if(id===target){L(old=>old.includes(target)?old:[...old,target]);B(old=>old.filter(x=>x!==id))}D(null)}
+return <main className="app"><header className="top"><button className="brand" onClick={()=>S("home")}><Flower2/> little love studio</button><span>20 · 10 · 2026</span></header>
+{screen==="home"&&<section className="page hero"><div className="eyebrow"><Sparkles size={15}/> MỘT MÓN QUÀ NHỎ, MỘT TÌNH YÊU TO</div><div className="hero-art"><i>🌸</i><div className="envelope"><Heart size={38} fill="currentColor"/><small>for you</small></div><i>🌷</i></div><h1>Một chút yêu thương<br/><em>gửi mẹ và em gái!</em></h1><p className="lead">Không phải là những món quà vật chất, mà là những lời yêu thương, kỷ niệm và điều đặc biệt nhất từ trái tim.</p><div className="people">{["mom","sister"].map(p=><button className="person" key={p} onClick={()=>start(p)}><b>{p==="mom"?"🌷":"🌼"}</b><small>HÀNH TRÌNH {p==="mom"?"01":"02"}</small><strong>{journeys[p].label}</strong><span>{p==="mom"?"Một chút biết ơn, thật nhiều yêu thương.":"Câu hỏi gần gũi và món quà bất ngờ."}</span><em>Bắt đầu khám phá <ArrowRight size={15}/></em></button>)}</div><p className="tiny">♡ Làm bằng yêu thương, dành riêng cho gia đình mình.</p></section>}
+{screen==="quiz"&&<section className="page game"><button className="back" onClick={()=>S("home")}><ArrowLeft size={14}/> Về trang đầu</button><div className="center"><div className="eyebrow"><Sparkles size={14}/> {d.label.toUpperCase()}</div><h1>Một câu hỏi nhỏ,<br/><em>một mảnh yêu thương.</em></h1><p>{d.intro}</p></div><div className="progress-label"><span>HÀNH TRÌNH CỦA {d.name.toUpperCase()}</span><b>{unlocked.length}/6 mảnh</b></div><div className="progress"><i style={{width:progress+"%"}}/></div><div className="columns"><div className="panel"><small className="count">CÂU HỎI {String(step+1).padStart(2,"0")} · 06</small><h2>{q[0]}</h2><div className="options">{q[1].map(opt=><button key={opt} className={ans.choice===opt?"option chosen":"option"} onClick={()=>answer({choice:opt})}><span>{ans.choice===opt?"✓":""}</span>{opt}</button>)}</div><label htmlFor="note">Hoặc viết câu trả lời của riêng mình <small>(không bắt buộc)</small></label><textarea id="note" rows="3" value={ans.note||""} onChange={e=>answer({note:e.target.value})} placeholder="Viết vài dòng nếu muốn chia sẻ..."/><p className="privacy">💗 Không có đáp án đúng hay sai. Bạn có thể chọn, viết hoặc để trống.</p><button className="primary full" onClick={reveal}>Hoàn thành câu hỏi, nhận mảnh ghép <Heart size={15} fill="currentColor"/></button></div><aside className="panel preview"><div className="progress-label"><b>BỨC TRANH CỦA {d.name.toUpperCase()}</b><b>{unlocked.length}/6</b></div><div className="preview-image"><img src={art}/><div>{[0,1,2,3,4,5].map(i=><span key={i} className={unlocked.includes(i)?"shown":""}>{unlocked.includes(i)?"✿":<LockKeyhole size={15}/>}</span>)}</div></div><p>Mỗi câu hỏi hoàn thành mở một mảnh tranh. Cuối cùng, bạn sẽ tự tay ghép tất cả lại với nhau.</p></aside></div></section>}
+{screen==="piece"&&<section className="page reveal"><div className="eyebrow"><Sparkles size={15}/> MẢNH GHÉP MỚI ĐÃ ĐƯỢC MỞ KHÓA</div><div className="big-piece">🧩</div><h1>Một mảnh yêu thương<br/><em>đã thuộc về bạn!</em></h1><p className="lead">Không cần trả lời đúng. Cảm ơn bạn đã dành một chút thời gian cho câu hỏi này.</p><div className="piece-sample"><Tile id={step}/></div><p className="subtle">{unlocked.length}/6 mảnh ghép đã tìm thấy</p><div className="progress"><i style={{width:progress+"%"}}/></div><button className="primary" onClick={next}>{step===5?"Đến bàn ghép tranh":"Tiếp tục khám phá"} <ArrowRight size={16}/></button><button className="back" onClick={()=>S("home")}>Về trang đầu</button></section>}
+{screen==="puzzle"&&<section className="page game"><button className="back" onClick={()=>S("piece")}><ArrowLeft size={14}/> Quay lại</button><div className="center"><div className="eyebrow"><Gift size={14}/> ĐÃ ĐỦ TẤT CẢ MẢNH GHÉP</div><h1>Giờ đến lượt bạn <em>ghép tranh!</em></h1><p>Kéo từng mảnh vào đúng ô. Trên điện thoại, chạm vào mảnh rồi chạm vào ô muốn đặt.</p></div><div className="assembly"><div className="panel"><div className="progress-label"><b>BỨC TRANH YÊU THƯƠNG</b><b>{placed.length}/6</b></div><div className="board">{[0,1,2,3,4,5].map(id=><div className="cell" key={id} onDragOver={e=>e.preventDefault()} onDrop={()=>selected!==null&&put(selected,id)} onClick={()=>selected!==null&&put(selected,id)}>{placed.includes(id)?<Tile id={id}/>:<span>{id+1}</span>}</div>)}</div><div className="progress"><i style={{width:placed.length/6*100+"%"}}/></div></div><div className="panel bank"><h2>Mảnh ghép của bạn</h2><p>Hãy tìm số ở góc mảnh ghép và đặt vào ô cùng số.</p><div className="bank-grid">{pieces.map(id=><button key={id} draggable onDragStart={()=>D(id)} onDragEnd={()=>D(null)} onClick={()=>D(id)} className={selected===id?"bank-piece selected":"bank-piece"}><Tile id={id}/><span>{id+1}</span></button>)}</div>{selected!==null&&<p className="hint">Đã chọn mảnh {selected+1}. Chạm ô số {selected+1} để đặt.</p>}<button className="primary full" disabled={placed.length!==6} onClick={()=>S("card")}>{placed.length===6?"Mở tấm thiệp chúc mừng":"Ghép đủ 6 mảnh để mở thiệp"} <Heart size={15} fill="currentColor"/></button><button className="back" onClick={()=>{B(old=>[...old].sort(()=>Math.random()-.5));L([]);D(null)}}><RotateCcw size={14}/> Xáo trộn và thử lại</button></div></div></section>}
+{screen==="card"&&<section className="page final"><div className="eyebrow"><Sparkles size={15}/> BẠN ĐÃ GHÉP HOÀN CHỈNH BỨC TRANH</div><img className="final-art" src={art} alt="Bức tranh mẹ và con gái trong khu vườn hoa"/><article className="letter"><small>✦ MỘT TẤM THIỆP DÀNH RIÊNG ✦</small><h1>{d.title},<br/><em>chúc mừng 20/10!</em></h1><p>{d.message}</p><div className="sign">Thương thật nhiều, ♡<br/><b>Gia đình mình</b></div></article><p className="subtle">Cảm ơn vì đã cùng hoàn thành món quà nhỏ này. Mong mỗi ngày đều có thêm một lý do để mỉm cười. 💗</p><button className="primary" onClick={()=>S("home")}>Về trang đầu <Heart size={15} fill="currentColor"/></button><button className="back" onClick={()=>start(person)}><RotateCcw size={14}/> Chơi lại hành trình này</button></section>}
+<footer className="footer"><span>made with ♡ for 20/10</span><span>Một chút dịu dàng cho những người mình thương</span></footer></main>}
+createRoot(document.getElementById("root")).render(<App/>);

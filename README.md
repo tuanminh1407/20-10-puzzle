@@ -1,46 +1,25 @@
-# Món quà nhỏ ngày 20/10 💗
+# Little Love Studio — 20/10 v2
 
-Website mini game bằng React + Vite, gồm hai hành trình riêng:
-- Dành tặng mẹ
-- Dành tặng em gái
+- Hai hành trình riêng cho mẹ và em gái.
+- Câu hỏi thực tế, không có đáp án đúng/sai.
+- Có thể chọn gợi ý, viết câu trả lời tự do hoặc để trống.
+- Mỗi câu hoàn thành mở một mảnh ghép.
+- Khi đủ 6 mảnh, người nhận tự ghép tranh bằng kéo-thả hoặc chạm chọn trên điện thoại.
+- Ghép xong sẽ mở thiệp chúc mừng.
 
-Mỗi câu hỏi hoàn thành mở một mảnh ghép. Khi hoàn thành hành trình, người nhận xem tấm thiệp cuối cùng.
-
-## Chạy trên máy
-
-Cần cài Node.js bản LTS.
-
+## Chạy local
+Cài Node.js LTS, giải nén rồi mở terminal tại thư mục dự án:
 ```bash
 npm install
 npm run dev
 ```
+Kiểm tra build: `npm run build`
 
-Mở URL mà Vite hiện ra trong terminal (thường là http://localhost:5173).
+## Deploy Vercel
+1. Upload toàn bộ thư mục lên GitHub.
+2. Vào https://vercel.com/new và import repository.
+3. Chọn Vite, Build Command `npm run build`, Output Directory `dist`.
+4. Deploy.
 
-Kiểm tra bản build:
-```bash
-npm run build
-```
-
-## Deploy miễn phí lên Vercel
-
-### Cách dễ nhất: GitHub + Vercel
-1. Giải nén ZIP.
-2. Tạo repository mới trên GitHub và upload toàn bộ file trong thư mục này.
-3. Vào https://vercel.com và đăng nhập bằng GitHub.
-4. Chọn **Add New → Project**, import repository vừa tạo.
-5. Framework preset: **Vite**; Build Command `npm run build`; Output Directory `dist`.
-6. Bấm **Deploy**. Vercel sẽ cấp link HTTPS để chia sẻ.
-
-Không cần backend, database hay biến môi trường.
-
-## Chỉnh sửa nội dung
-Mở `src/main.jsx`:
-- Sửa câu hỏi trong `journeys.mom.questions` và `journeys.sister.questions`.
-- Với câu hỏi có đáp án đúng, đặt `answer` thành chỉ số 0, 1 hoặc 2.
-- Với câu hỏi không có đúng/sai, để `answer: null`.
-- Chỉnh lời chúc trong thuộc tính `message`.
-- Chỉnh tên người ký ở phần `Gia đình mình`.
-
-## Lưu ý
-Đây là bản mẫu frontend: tiến trình được giữ trong phiên đang mở, chưa đồng bộ giữa thiết bị và chưa có trang quản trị. Các câu hỏi/đáp án nằm trong mã nguồn nên không nên dùng như một bài kiểm tra bảo mật.
+## Chỉnh nội dung
+Sửa `journeys` trong `src/main.jsx`; ảnh thiệp ở `public/gift-art.svg`. Tiến trình và câu trả lời chỉ lưu trong bộ nhớ trang hiện tại, chưa đồng bộ hoặc lưu lại sau khi refresh.
